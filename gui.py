@@ -2,7 +2,7 @@ from tkinter import *
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 
-a = [0 for x in range(14)] #Stores textbox variables
+a = [0 for x in range(14)] #Stores textbox variables for x and y coordinates of reflectors
 
 
 # Functions -----------------------------------------------------------------
@@ -20,8 +20,7 @@ def display():   #
 def processData():
     global a
     global filename
-    print(a[2].get())
-    print("Hello!")
+    #Add function here to do further processing of data (Calculation of Calibration Constant)
 
 
 def calculate(*args):
@@ -58,7 +57,6 @@ mainframe.rowconfigure(0, weight=1)
 
 #----------------------------------------------------
 
-
 #---------------Variables----------------------------
 
 feet = StringVar()
@@ -87,7 +85,6 @@ length_entry.grid(column=2, row=2, sticky=(W, E))
 number_entry.grid(column=2, row=7, sticky=(W,E))
 
 #---------------------------------------------------------
-
 
 
 #Widgets------------Contains Labels and Buttons------------------------------------
