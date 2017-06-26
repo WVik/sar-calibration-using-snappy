@@ -1,11 +1,16 @@
 from tkinter import *
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
+import math
+import snappy
+from snappy import *
+import numpy as np
 
 a = [0 for x in range(14)] #Stores textbox variables
 coordinateArray=[]
 sigma=0
 k_VH=[]
+filename="0"
 
 # Functions -----------------------------------------------------------------
 def display():   #
@@ -31,6 +36,7 @@ def processData():
     newframe=tk.Toplevel(root)
     calculateSigma()   #Calculate Radar Cross Section
     createCoordinateArray() #Creates array for X and Y coordinates of reflectors.
+    findK()
     for child in newframe.winfo_children(): child.grid_configure(padx=10, pady=10)
 
 
@@ -45,6 +51,116 @@ def createCoordinateArray():
         coordinateArray.append((int(a[i].get()),int(a[i+1].get())))
     print(coordinateArray)
 
+#================================================= Function to do all calculations of K=========================================
+
+def findK():
+    n=int(num.get())
+    global coordinateArray
+    global k_VH
+    global filename
+    for i in range(n):
+        #importing product
+        p=ProductIO.readProduct('C:/Users/abhishek/Desktop/whole.dim')
+
+        BandNames=list(p.getBandNames())#function to create array of BandNames
+
+        HashMap = jpy.get_type('java.util.HashMap')
+        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
+        parameters = HashMap()
+        parameters.put('copyMetadata', True)
+
+
+    #creating subset
+        a=int(coordinateArray[i][0])-63
+        b=int(coordinateArray[i][1])-63
+        a=str(a)
+        b=str(b)
+        parameters.put('region', "%s,%s,128,128"%(a,b) )
+        subset = GPF.createProduct('Subset', parameters, p)
+        Inty_VH = subset.getBand('Intensity_VH')
+        w = Inty_VH.getRasterWidth()
+        h = Inty_VH.getRasterHeight()
+        Inty_VH_data = np.zeros(w * h, np.float32)
+
+    #-----------------------Creating 4 subsets for Background Correction------------------------
+    #creating more subset 10 x 10 for background correction
+        parameters.put('region', "10,10,10,10")
+        subset1 = GPF.createProduct('Subset', parameters, subset)
+        Inty_VH = subset1.getBand('Intensity_VH')
+        w = Inty_VH.getRasterWidth()
+        h = Inty_VH.getRasterHeight()
+        Inty_VH_data = np.zeros(w * h, np.float32)
+        a1=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
+        sum_b1=(arr_sum(a1))
+
+
+        parameters.put('region', "10,100,10,10")
+        subset2 = GPF.createProduct('Subset', parameters, subset)
+        Inty_VH = subset2.getBand('Intensity_VH')
+        w = Inty_VH.getRasterWidth()
+        h = Inty_VH.getRasterHeight()
+        Inty_VH_data = np.zeros(w * h, np.float32)
+        a2=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
+        sum_b2=(arr_sum(a2))
+
+
+        parameters.put('region', "100,10,10,10")
+        subset3 = GPF.createProduct('Subset', parameters, subset)
+        Inty_VH = subset3.getBand('Intensity_VH')
+        w = Inty_VH.getRasterWidth()
+        h = Inty_VH.getRasterHeight()
+        Inty_VH_data = np.zeros(w * h, np.float32)
+        a3=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
+        sum_b3=(arr_sum(a3))
+
+
+        parameters.put('region', "100,100,10,10")
+        subset4 = GPF.createProduct('Subset', parameters, subset)
+        Inty_VH = subset4.getBand('Intensity_VH')
+        w = Inty_VH.getRasterWidth()
+        h = Inty_VH.getRasterHeight()
+        Inty_VH_data = np.zeros(w * h, np.float32)
+        a4=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
+        sum_b4=(arr_sum(a4))
+
+        sum_bm=(sum_b1+sum_b2+sum_b3+sum_b4)/400
+        print(sum)
+
+    #--------------------------------------------------------------------
+
+        #creating subset 20 x 20 to calculate Ip
+        parameters.put('region', "53,53,20,20")
+        subset20 = GPF.createProduct('Subset', parameters, subset)
+        Inty_VH = subset20.getBand('Intensity_VH')
+        w = Inty_VH.getRasterWidth()
+        h = Inty_VH.getRasterHeight()
+        Inty_VH_data = np.zeros(w * h, np.float32)
+        a20=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
+        for i in range(len(a20)):
+            a20[i]=a20[i]-sum_bm
+        Ip=arr_sum(a20)
+
+        K_VH=10*math.log10((Ip*Pagr*math.sin(alpha*math.pi/180))/sigma)
+        k_VH.append(K_VH)
+
+    i=0
+    k=0
+    while i<len(k_VH):
+        k=k+k_VH[i]
+        i=i+1
+    print('K_VH= '+str(k/len(k_VH)))
+    input('<PRESS \'ENTER\' TO EXIT>')
+
+#====================================================================================================================================
+
+
+def arr_sum(arr):
+    i=0
+    sum=0
+    while i<len(arr):
+        sum=sum+arr[i]
+        i=i+1
+    return sum
 
 def calculateSigma(*args):
     global sigma
