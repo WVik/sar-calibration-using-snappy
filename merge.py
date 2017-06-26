@@ -3,7 +3,9 @@ import tkinter as tk
 from tkinter.filedialog import askopenfilename
 
 a = [0 for x in range(14)] #Stores textbox variables
+coordinateArray=[]
 sigma=0
+k_VH=[]
 
 # Functions -----------------------------------------------------------------
 def display():   #
@@ -19,20 +21,32 @@ def display():   #
 
 
 # This function creates a new window for computations--------------------------------------------------------------
+
+    #Functions: 1) To calculate sigma (Radar Cross Section)
+    #           2) To start the process to calculate K. Call helper functions.
 def processData():
     global a
     global filename
     print("Hello!")
     newframe=tk.Toplevel(root)
-    calculate()
-    for child in newframe.winfo_children(): child.grid_configure(padx=5, pady=5)
+    calculateSigma()   #Calculate Radar Cross Section
+    createCoordinateArray() #Creates array for X and Y coordinates of reflectors.
+    for child in newframe.winfo_children(): child.grid_configure(padx=10, pady=10)
 
 
 
 #-------------------------------------------------------------------------------------------------------------------
+def createCoordinateArray():
+    global coordinateArray
+    global a
+    k=int(num.get())
+    k=int(k)*2
+    for i in range(0,k,2):
+        coordinateArray.append((int(a[i].get()),int(a[i+1].get())))
+    print(coordinateArray)
 
 
-def calculate(*args):
+def calculateSigma(*args):
     global sigma
     try:
         freq = float(frequency.get())
@@ -132,6 +146,6 @@ for child in mainframe.winfo_children(): child.grid_configure(padx=15, pady=15)
 
 length_entry.focus()
 
-root.bind('<Return>', calculate)
+#root.bind('<Return>', calculate)
 
 root.mainloop()
