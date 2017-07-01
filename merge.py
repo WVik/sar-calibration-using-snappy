@@ -185,7 +185,7 @@ def plotReflector(i):
     ax = fig.add_subplot(111, projection='3d')
     x = y = np.arange(0, 20, 1)
     X, Y = np.meshgrid(x, y)
-    zs = np.array([z[int(i)][int(x)][int(y)] for x,y in zip(np.ravel(X), np.ravel(Y))])
+    zs = np.array([intensityArray[int(i)][int(x)][int(y)] for x,y in zip(np.ravel(X), np.ravel(Y))])
     Z = zs.reshape(X.shape)
     surf = ax.plot_surface(X, Y, Z)
     surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,cmap='Reds',linewidth=0.5, antialiased=False)
