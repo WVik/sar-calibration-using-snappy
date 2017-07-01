@@ -5,7 +5,11 @@ import math
 import snappy
 from snappy import *
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+import random
 
+intensityArray = []
 a = [0 for x in range(14)] #Stores textbox variables
 coordinateArray=[]
 sigma=0
@@ -36,7 +40,7 @@ def processData():
     newframe=tk.Toplevel(root)
     calculateSigma()   #Calculate Radar Cross Section
     createCoordinateArray() #Creates array for X and Y coordinates of reflectors.
-    findK()
+    findK(newframe)
     for child in newframe.winfo_children(): child.grid_configure(padx=10, pady=10)
 
 
@@ -48,16 +52,20 @@ def createCoordinateArray():
     k=int(num.get())
     k=int(k)*2
     for i in range(0,k,2):
-        coordinateArray.append((int(a[i].get()),int(a[i+1].get())))
+        coordinateArray.append(((a[i].get()),int(a[i+1].get())))
     print(coordinateArray)
 
 #================================================= Function to do all calculations of K=========================================
 
-def findK():
+def findK(newframe):
+    global intensityArray
     n=int(num.get())
     global coordinateArray
     global k_VH
     global filename
+    tk.Label(newframe, text="Plots of the corner reflectors").grid(column=2,row=1,sticky=W)
+    for i in range(0,4):
+        tk.Button(newframe, text="Reflector" + str(i+1)).grid(column=(i)%2+1, row=2+(i)//2, sticky=W)
     for i in range(n):
         #importing product
         p=ProductIO.readProduct('C:/Users/abhishek/Desktop/whole.dim')
@@ -136,6 +144,12 @@ def findK():
         h = Inty_VH.getRasterHeight()
         Inty_VH_data = np.zeros(w * h, np.float32)
         a20=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
+        
+        
+        #Convert the 1D array into 2D here for later use with the plotting function
+        #For plotting the graphs
+        intensityArray.append(a20)  #intensityArray is the array of 2D arrays for plotting multiple reflectors
+
         for i in range(len(a20)):
             a20[i]=a20[i]-sum_bm
         Ip=arr_sum(a20)
@@ -150,9 +164,37 @@ def findK():
         k=k+k_VH[i]
         i=i+1
     print('K_VH= '+str(k/len(k_VH)))
+    tk.Label(newframe, text="Calculated K value").grid(column=1, row=1, sticky=W)
+    tk.Label(newframe, text=" = " + str(k/len(k_VH))).grid(column=1, row=2, sticky=W)
+    addPlotButtons(newframe,len(k_VH))
+
+#==================================================================================================
+
+def addPlotButtons(newframe,length):
+    tk.Label(newframe, text="Plots of the corner reflectors").grid(column=2,row=2,sticky=W)
+    for i in range(length):
+        tk.Button(newframe, text="Confirm", command=lambda:plotReflector(1)).grid(column=(i)%2+1, row=2+(i)//2, sticky=W)
 
 
-#====================================================================================================================================
+def plotReflector(i):
+    global intensityArray
+    i = int(i)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    n = 10
+    xs = [i for i in range(n) for _ in range(n)]
+    ys = range(n) * n
+    zs = [intensityArray[i][x][y]  for x,y in zip(xs,ys)]
+    ax.scatter(xs, ys, zs)
+    ax.set_xlabel('X Label')
+    ax.set_ylabel('Y Label')
+    ax.set_zlabel('Z Label')
+    plt.show()
+
+
+
+
+#======================================================================================================
 
 
 def arr_sum(arr):
