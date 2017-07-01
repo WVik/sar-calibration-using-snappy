@@ -143,10 +143,14 @@ def findK(newframe):
         Inty_VH_data = np.zeros(w * h, np.float32)
         a20=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
         
+        arr20=[]  #Converting a20 into a 2D array(20*20) for plotting purpose
+        for i in range(0,400,20):
+            temp=[]
+            for j in range(20):
+                temp.append(a20[i+j])
+            arr20.append(temp)
         
-        #Convert the 1D array into 2D here for later use with the plotting function
-        #For plotting the graphs
-        intensityArray.append(a20)  #intensityArray is the array of 2D arrays for plotting multiple reflectors
+        intensityArray.append(arr20)  #intensityArray is the array of 2D arrays for plotting multiple reflectors
 
         for i in range(len(a20)):
             a20[i]=a20[i]-sum_bm
@@ -171,7 +175,7 @@ def findK(newframe):
 def addPlotButtons(newframe,length):
     tk.Label(newframe, text="Plots of the corner reflectors").grid(column=2,row=2,sticky=W)
     for i in range(length):
-        tk.Button(newframe, text="Confirm", command=lambda:plotReflector(1)).grid(column=(i)%2+1, row=3+(i)//2, sticky=W)
+        tk.Button(newframe, text="Reflector ", command=lambda:plotReflector(i)).grid(column=(i)%2+1, row=3+(i)//2, sticky=W)
 
 
 def plotReflector(i):
@@ -179,16 +183,16 @@ def plotReflector(i):
     i = int(i)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    n = 10
-    xs = [i for i in range(n) for _ in range(n)]
-    ys = range(n) * n
-    zs = [intensityArray[i][x][y]  for x,y in zip(xs,ys)]
-    ax.scatter(xs, ys, zs)
+    x = y = np.arange(0, 20, 1)
+    X, Y = np.meshgrid(x, y)
+    zs = np.array([z[1][x][y] for x,y in zip(np.ravel(X), np.ravel(Y))])
+    Z = zs.reshape(X.shape)
+    surf = ax.plot_surface(X, Y, Z)
+    surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,cmap='Reds',linewidth=0.5, antialiased=False)
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
     plt.show()
-
 
 
 
