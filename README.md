@@ -13,7 +13,10 @@ How to use:
 * Now it asks for the number of corner reflectors that were used for calibration. Also, it asks for the X and Y coordinates of the reflectors.
 * Now the background processes will make calculations for Background Corrected Intensity, Subset means, and Bandmaths.
 * The calculated value of the Calibration Constant for that band will be displayed in the console.
+* A new window will contain all the plots of intensity around corner reflectors.
 * Also a log file is generated in the project folder which contains all the parameter values.
 
-
+Working Example
+------------------------
+A working example will be added soon.  
 
