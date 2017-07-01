@@ -27,8 +27,8 @@ def display():   #
 
 # This function creates a new window for computations--------------------------------------------------------------
 
-    #Functions: 1) To calculate sigma (Radar Cross Section)
-    #           2) To start the process to calculate K. Call helper functions.
+#Functions: 1) To calculate sigma (Radar Cross Section)
+#           2) To start the process to calculate K. Call helper functions.
 def processData():
     global a
     global filename
@@ -61,16 +61,16 @@ def findK():
     for i in range(n):
         #importing product
         p=ProductIO.readProduct('C:/Users/abhishek/Desktop/whole.dim')
-
+        
         BandNames=list(p.getBandNames())#function to create array of BandNames
-
+        
         HashMap = jpy.get_type('java.util.HashMap')
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
         parameters = HashMap()
         parameters.put('copyMetadata', True)
-
-
-    #creating subset
+        
+        
+        #creating subset
         a=int(coordinateArray[i][0])-63
         b=int(coordinateArray[i][1])-63
         a=str(a)
@@ -81,9 +81,9 @@ def findK():
         w = Inty_VH.getRasterWidth()
         h = Inty_VH.getRasterHeight()
         Inty_VH_data = np.zeros(w * h, np.float32)
-
-    #-----------------------Creating 4 subsets for Background Correction------------------------
-    #creating more subset 10 x 10 for background correction
+        
+        #-----------------------Creating 4 subsets for Background Correction------------------------
+        #creating more subset 10 x 10 for background correction
         parameters.put('region', "10,10,10,10")
         subset1 = GPF.createProduct('Subset', parameters, subset)
         Inty_VH = subset1.getBand('Intensity_VH')
@@ -92,8 +92,8 @@ def findK():
         Inty_VH_data = np.zeros(w * h, np.float32)
         a1=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
         sum_b1=(arr_sum(a1))
-
-
+        
+        
         parameters.put('region', "10,100,10,10")
         subset2 = GPF.createProduct('Subset', parameters, subset)
         Inty_VH = subset2.getBand('Intensity_VH')
@@ -102,8 +102,8 @@ def findK():
         Inty_VH_data = np.zeros(w * h, np.float32)
         a2=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
         sum_b2=(arr_sum(a2))
-
-
+        
+        
         parameters.put('region', "100,10,10,10")
         subset3 = GPF.createProduct('Subset', parameters, subset)
         Inty_VH = subset3.getBand('Intensity_VH')
@@ -112,8 +112,8 @@ def findK():
         Inty_VH_data = np.zeros(w * h, np.float32)
         a3=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
         sum_b3=(arr_sum(a3))
-
-
+        
+        
         parameters.put('region', "100,100,10,10")
         subset4 = GPF.createProduct('Subset', parameters, subset)
         Inty_VH = subset4.getBand('Intensity_VH')
@@ -122,12 +122,12 @@ def findK():
         Inty_VH_data = np.zeros(w * h, np.float32)
         a4=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
         sum_b4=(arr_sum(a4))
-
+        
         sum_bm=(sum_b1+sum_b2+sum_b3+sum_b4)/400
         print(sum)
-
-    #--------------------------------------------------------------------
-
+        
+        #--------------------------------------------------------------------
+        
         #creating subset 20 x 20 to calculate Ip
         parameters.put('region', "53,53,20,20")
         subset20 = GPF.createProduct('Subset', parameters, subset)
@@ -139,17 +139,18 @@ def findK():
         for i in range(len(a20)):
             a20[i]=a20[i]-sum_bm
         Ip=arr_sum(a20)
-
-        K_VH=10*math.log10((Ip*Pagr*math.sin(alpha*math.pi/180))/sigma)
+        alph=float(alpha.get())
+        Pag=float(Pagr.get())
+        K_VH=10*math.log10((Ip*Pag*math.sin(alph*math.pi/180))/sigma)
         k_VH.append(K_VH)
-
+    
     i=0
     k=0
     while i<len(k_VH):
         k=k+k_VH[i]
         i=i+1
     print('K_VH= '+str(k/len(k_VH)))
-    input('<PRESS \'ENTER\' TO EXIT>')
+
 
 #====================================================================================================================================
 
@@ -205,14 +206,14 @@ feet = StringVar()
 meters = StringVar()
 length = StringVar()
 frequency = StringVar()
-pagr = StringVar()
+Pagr = StringVar()
 alpha = StringVar()
 num=StringVar()
 
 #----------------------------------------------------
 
 #Entries-------------TextFields and Grids----------------------
-pagr_entry = tk.Entry(mainframe, width=7, textvariable=pagr)
+Pagr_entry = tk.Entry(mainframe, width=7, textvariable=Pagr)
 length_entry = tk.Entry(mainframe, width=7, textvariable=length)
 frequency_entry = tk.Entry(mainframe, width=7, textvariable=frequency)
 alpha_entry = tk.Entry(mainframe, width=7, textvariable=alpha)
@@ -223,7 +224,7 @@ number_entry = tk.Entry(mainframe, width=7, textvariable=num)
 
 #Grids for entries
 frequency_entry.grid(column=2, row=3, sticky=(W,E))
-pagr_entry.grid(column=2, row=5, sticky=(W, E))
+Pagr_entry.grid(column=2, row=5, sticky=(W, E))
 alpha_entry.grid(column=2, row=6, sticky=(W, E))
 length_entry.grid(column=2, row=2, sticky=(W, E))
 number_entry.grid(column=2, row=7, sticky=(W,E))
