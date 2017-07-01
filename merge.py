@@ -167,7 +167,7 @@ def findK(newframe):
         i=i+1
     print('K_VH= '+str(k/len(k_VH)))
     tk.Label(newframe, text="Calculated K value").grid(column=1, row=1, sticky=W)
-    tk.Label(newframe, text=" = " + str(k/len(k_VH))).grid(column=1, row=2, sticky=W)
+    tk.Label(newframe, text=" = " + str(k/len(k_VH))).grid(column=2, row=1, sticky=W)
     addPlotButtons(newframe,len(k_VH))
 
 #==================================================================================================
@@ -175,7 +175,7 @@ def findK(newframe):
 def addPlotButtons(newframe,length):
     tk.Label(newframe, text="Plots of the corner reflectors").grid(column=2,row=2,sticky=W)
     for i in range(length):
-        tk.Button(newframe, text="Reflector ", command=lambda:plotReflector(i)).grid(column=(i)%2+1, row=3+(i)//2, sticky=W)
+        tk.Button(newframe, text="Reflector "+str(i+1), command=lambda:plotReflector(i)).grid(column=(i)%2+1, row=3+(i)//2, sticky=W)
 
 
 def plotReflector(i):
@@ -185,7 +185,7 @@ def plotReflector(i):
     ax = fig.add_subplot(111, projection='3d')
     x = y = np.arange(0, 20, 1)
     X, Y = np.meshgrid(x, y)
-    zs = np.array([z[1][x][y] for x,y in zip(np.ravel(X), np.ravel(Y))])
+    zs = np.array([z[int(i)][int(x)][int(y)] for x,y in zip(np.ravel(X), np.ravel(Y))])
     Z = zs.reshape(X.shape)
     surf = ax.plot_surface(X, Y, Z)
     surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,cmap='Reds',linewidth=0.5, antialiased=False)
