@@ -1,4 +1,4 @@
-# snappy-sar-calibration
+# Synthetic Aperture Radar Calibration Using Snappy
 ---
 This is a SAR Calibration tool made on top of SNAP (Sentinel Application Platform).
 This tool is written in Python and uses the snappy module that comes with SNAP. 
