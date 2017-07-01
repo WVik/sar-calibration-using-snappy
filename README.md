@@ -18,5 +18,7 @@ How to use:
 
 Working Example
 ------------------------
-A working example will be added soon.  
+###### 1)Open the program 
+![open program](https://github.com/WVik/snappy-sar-calibration/blob/master/Pics/Screen%20Shot%202017-07-01%20at%201.19.57%20pm.png?raw=true)
+
 
