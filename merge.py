@@ -2,8 +2,6 @@ from tkinter import *
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 import math
-import snappy
-from snappy import *
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
@@ -58,6 +56,10 @@ def createCoordinateArray():
 #================================================= Function to do all calculations of K=========================================
 
 def findK(newframe):
+    import snappy
+    from snappy import jpy
+    from snappy import GPF
+    from snappy import ProductIO
     global intensityArray
     n=int(num.get())
     global coordinateArray
@@ -151,7 +153,7 @@ def findK(newframe):
             arr20.append(temp)
         
         intensityArray.append(arr20)  #intensityArray is the array of 2D arrays for plotting multiple reflectors
-
+        print()
         for i in range(len(a20)):
             a20[i]=a20[i]-sum_bm
         Ip=arr_sum(a20)
@@ -173,19 +175,21 @@ def findK(newframe):
 #==================================================================================================
 
 def addPlotButtons(newframe,length):
-    tk.Label(newframe, text="Plots of the corner reflectors").grid(column=2,row=2,sticky=W)
+    tk.Label(newframe, text="Plots of the corner reflectors").grid(column=1,row=2,sticky=W)
     for i in range(length):
-        tk.Button(newframe, text="Reflector "+str(i+1), command=lambda:plotReflector(i)).grid(column=(i)%2+1, row=3+(i)//2, sticky=W)
+        tk.Button(newframe, text="Reflector "+str(i+1), command=lambda i=i: plotReflector(i)).grid(column=(i)%2+1, row=3+(i)//2, sticky=W)
 
 
-def plotReflector(i):
+def plotReflector(new):
+    
     global intensityArray
-    i = int(i)
+    print(intensityArray)
+    new = int(new)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     x = y = np.arange(0, 20, 1)
     X, Y = np.meshgrid(x, y)
-    zs = np.array([intensityArray[int(i)][int(x)][int(y)] for x,y in zip(np.ravel(X), np.ravel(Y))])
+    zs = np.array([intensityArray[int(new)][int(x)][int(y)] for x,y in zip(np.ravel(X), np.ravel(Y))])
     Z = zs.reshape(X.shape)
     surf = ax.plot_surface(X, Y, Z)
     surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,cmap='Reds',linewidth=0.5, antialiased=False)
@@ -228,7 +232,7 @@ def selectFile():
     #print(filename)
     filename = askopenfilename()
     print(filename)
-    tk.Label(mainframe, text=filename+" selected", width=15).grid(column=2, row=1, sticky=W)
+    tk.Label(mainframe, text="File Selected", width=15).grid(column=2, row=1, sticky=W)
 
 #-----------------------------------------------------------------------------------------------------------
 
