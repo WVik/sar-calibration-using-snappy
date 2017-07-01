@@ -63,9 +63,7 @@ def findK(newframe):
     global coordinateArray
     global k_VH
     global filename
-    tk.Label(newframe, text="Plots of the corner reflectors").grid(column=2,row=1,sticky=W)
-    for i in range(0,4):
-        tk.Button(newframe, text="Reflector" + str(i+1)).grid(column=(i)%2+1, row=2+(i)//2, sticky=W)
+    
     for i in range(n):
         #importing product
         p=ProductIO.readProduct('C:/Users/abhishek/Desktop/whole.dim')
@@ -173,7 +171,7 @@ def findK(newframe):
 def addPlotButtons(newframe,length):
     tk.Label(newframe, text="Plots of the corner reflectors").grid(column=2,row=2,sticky=W)
     for i in range(length):
-        tk.Button(newframe, text="Confirm", command=lambda:plotReflector(1)).grid(column=(i)%2+1, row=2+(i)//2, sticky=W)
+        tk.Button(newframe, text="Confirm", command=lambda:plotReflector(1)).grid(column=(i)%2+1, row=3+(i)//2, sticky=W)
 
 
 def plotReflector(i):
