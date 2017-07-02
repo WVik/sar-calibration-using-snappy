@@ -19,6 +19,11 @@ How to use:
 Working Example
 ------------------------
 ###### 1)Open the program 
-![open program](https://github.com/WVik/snappy-sar-calibration/blob/master/Pics/Screen%20Shot%202017-07-01%20at%201.19.57%20pm.png?raw=true)
+![Open Program](https://github.com/WVik/sar-calibration-using-snappy/blob/master/Pics/MainWindow.png?raw=true)
 
 
+
+
+A sample plot
+-----------------------
+![Sample Plot](https://github.com/WVik/sar-calibration-using-snappy/blob/master/Pics/Plot.png?raw=true)
