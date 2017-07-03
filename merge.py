@@ -1,4 +1,5 @@
 from tkinter import *
+import datetime
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 import math
@@ -8,7 +9,13 @@ import matplotlib.pyplot as plt
 import random
 import os
 desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-savefile=open('%s/snap.txt'%desktop,'w')
+curr_time = str(datetime.datetime.now())
+curr_time = curr_time.replace(':','_')
+new_time=curr_time.split()
+newtime = new_time[0]+new_time[1]
+savefile=open('%s\log_%s.txt'%(desktop,str(newtime)),'w')
+#savefile=open("%s\log_"+str(newtime)+'.txt','w')
+
 intensityArray = []
 a = [0 for x in range(14)] #Stores textbox variables
 coordinateArray=[]
@@ -30,6 +37,7 @@ def display():   #
         a[i+1] = tk.Entry(mainframe, width=15)
         a[i+1].grid(column=3, row=(8+i), sticky=(W,E))
     tk.Button(mainframe, text="Process Data", command=processData).grid(column=2, row=3+len(a), sticky=W)
+    for child in mainframe.winfo_children(): child.grid_configure(padx=10, pady=10)
 
 
 
@@ -40,7 +48,6 @@ def display():   #
 def processData():
     global a
     global filename
-    print("Hello!")
     newframe=tk.Toplevel(root)
     calculateSigma()   #Calculate Radar Cross Section
     createCoordinateArray() #Creates array for X and Y coordinates of reflectors.
@@ -285,7 +292,6 @@ def selectFile():
     global filename
     #print(filename)
     filename = askopenfilename()
-    print(filename)
     tk.Label(mainframe, text="File Selected", width=15).grid(column=2, row=1, sticky=W)
 
 #-----------------------------------------------------------------------------------------------------------
@@ -353,7 +359,7 @@ tk.Label(mainframe, text="in Metres^2").grid(column=3, row=5, sticky=W)
 tk.Label(mainframe, text="Alpha").grid(column=1, row=6, sticky=W)
 tk.Label(mainframe, text="Degrees").grid(column=3, row=6, sticky=W)
 
-tk.Label(mainframe, text="Number of Ref").grid(column=1, row=7, sticky=W)
+tk.Label(mainframe, text="Number of Reflector(s)").grid(column=1, row=7, sticky=W)
 tk.Button(mainframe, text="Confirm", command=display).grid(column=3, row=7, sticky=W)
 
 
