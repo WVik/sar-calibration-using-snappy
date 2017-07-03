@@ -6,7 +6,9 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import random
-
+import os
+desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+savefile=open('%s/snap.txt'%desktop,'w')
 intensityArray = []
 a = [0 for x in range(14)] #Stores textbox variables
 coordinateArray=[]
@@ -15,6 +17,10 @@ k_VH=[]
 filename="0"
 
 # Functions -----------------------------------------------------------------
+
+
+    
+    
 def display():   #
     t = int(num.get())
     for i in range(0,2*t,2):
@@ -46,6 +52,7 @@ def processData():
 #-------------------------------------------------------------------------------------------------------------------
 def createCoordinateArray():
     global coordinateArray
+    coordinateArray=[]
     global a
     k=int(num.get())
     k=int(k)*2
@@ -68,7 +75,9 @@ def findK(newframe):
     
     for i in range(n):
         #importing product
-        p=ProductIO.readProduct('C:/Users/abhishek/Desktop/whole.dim')
+        if(i==0):
+            k_VH=[]
+        p=ProductIO.readProduct(filename)
         
         BandNames=list(p.getBandNames())#function to create array of BandNames
         
@@ -77,7 +86,7 @@ def findK(newframe):
         parameters = HashMap()
         parameters.put('copyMetadata', True)
         
-        
+        savefile.write('coordinate'+str(i+1)+' is'+" ("+str(coordinateArray[i][0]+","+str(coordinateArray[i][1])+")\n\n"))
         #creating subset
         a=int(coordinateArray[i][0])-63
         b=int(coordinateArray[i][1])-63
@@ -85,10 +94,25 @@ def findK(newframe):
         b=str(b)
         parameters.put('region', "%s,%s,128,128"%(a,b) )
         subset = GPF.createProduct('Subset', parameters, p)
+        
         Inty_VH = subset.getBand('Intensity_VH')
         w = Inty_VH.getRasterWidth()
         h = Inty_VH.getRasterHeight()
         Inty_VH_data = np.zeros(w * h, np.float32)
+
+        #creating subset 20 x 20 to calculate Ip
+        parameters.put('region', "53,53,20,20")
+        subset20 = GPF.createProduct('Subset', parameters, subset)
+        Inty_VH = subset20.getBand('Intensity_VH')
+        w = Inty_VH.getRasterWidth()
+        h = Inty_VH.getRasterHeight()
+        Inty_VH_data = np.zeros(w * h, np.float32)
+        a20=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
+        savefile.write('20x20 subset around coordinate'+str(i+1)+" without background intensity correction\n")
+        savefile.write('[\n')
+        arr20=arr12(a20,20,20)
+        savefile.writelines(["%s\n" % item  for item in arr20])
+        savefile.write(']\n\n')
         
         #-----------------------Creating 4 subsets for Background Correction------------------------
         #creating more subset 10 x 10 for background correction
@@ -100,7 +124,10 @@ def findK(newframe):
         Inty_VH_data = np.zeros(w * h, np.float32)
         a1=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
         sum_b1=(arr_sum(a1))
-        
+        savefile.write('first 10x10 subset of background\n')
+        writef(a1,10,10)
+        savefile.write('sum_b1= '+str(sum_b1)+'\n')
+        savefile.write('\n')
         
         parameters.put('region', "10,100,10,10")
         subset2 = GPF.createProduct('Subset', parameters, subset)
@@ -110,7 +137,10 @@ def findK(newframe):
         Inty_VH_data = np.zeros(w * h, np.float32)
         a2=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
         sum_b2=(arr_sum(a2))
-        
+        savefile.write('second 10x10 subset of background\n')
+        writef(a2,10,10)
+        savefile.write('sum_b2= '+str(sum_b2)+'\n')
+        savefile.write('\n')
         
         parameters.put('region', "100,10,10,10")
         subset3 = GPF.createProduct('Subset', parameters, subset)
@@ -120,7 +150,11 @@ def findK(newframe):
         Inty_VH_data = np.zeros(w * h, np.float32)
         a3=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
         sum_b3=(arr_sum(a3))
-        
+        savefile.write('third 10x10 subset of background\n')
+        writef(a3,10,10)
+        savefile.write('sum_b3= '+str(sum_b3)+'\n')
+        savefile.write('\n')
+
         
         parameters.put('region', "100,100,10,10")
         subset4 = GPF.createProduct('Subset', parameters, subset)
@@ -130,32 +164,29 @@ def findK(newframe):
         Inty_VH_data = np.zeros(w * h, np.float32)
         a4=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
         sum_b4=(arr_sum(a4))
+        savefile.write('fourth 10x10 subset of background\n')
+        writef(a4,10,10)
+        savefile.write('sum_b4= '+str(sum_b4)+'\n')
+        savefile.write('\n')
         
         sum_bm=(sum_b1+sum_b2+sum_b3+sum_b4)/400
+        savefile.write('mean background intensity= '+str(sum_bm))
+        savefile.write('\n')
         print(sum)
         
         #--------------------------------------------------------------------
         
-        #creating subset 20 x 20 to calculate Ip
-        parameters.put('region', "53,53,20,20")
-        subset20 = GPF.createProduct('Subset', parameters, subset)
-        Inty_VH = subset20.getBand('Intensity_VH')
-        w = Inty_VH.getRasterWidth()
-        h = Inty_VH.getRasterHeight()
-        Inty_VH_data = np.zeros(w * h, np.float32)
-        a20=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
-        
-        arr20=[]  #Converting a20 into a 2D array(20*20) for plotting purpose
-        for i in range(0,400,20):
-            temp=[]
-            for j in range(20):
-                temp.append(a20[i+j])
-            arr20.append(temp)
         
         intensityArray.append(arr20)  #intensityArray is the array of 2D arrays for plotting multiple reflectors
         print()
+        
         for i in range(len(a20)):
             a20[i]=a20[i]-sum_bm
+        arr40=arr12(a20,20,20)
+        savefile.write('20x20 subset around coordinate'+str(i+1)+" with background intensity correction\n")
+        savefile.write('[\n')
+        savefile.writelines(["%s\n" % item  for item in arr40])
+        savefile.write(']\n\n')
         Ip=arr_sum(a20)
         alph=float(alpha.get())
         Pag=float(Pagr.get())
@@ -173,7 +204,20 @@ def findK(newframe):
     addPlotButtons(newframe,len(k_VH))
 
 #==================================================================================================
-
+def arr12(arr,c1,r1):
+    c=0
+    i=0
+    col=[]
+    while c<c1:
+        r=0
+        row=[]
+        while r<r1:
+            row.append(arr[i])
+            i=i+1
+            r=r+1
+        col.append(row)
+        c=c+1
+    return col
 def addPlotButtons(newframe,length):
     tk.Label(newframe, text="Plots of the corner reflectors").grid(column=1,row=2,sticky=W)
     for i in range(length):
@@ -183,7 +227,7 @@ def addPlotButtons(newframe,length):
 def plotReflector(new):
     
     global intensityArray
-    print(intensityArray)
+    
     new = int(new)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -201,7 +245,17 @@ def plotReflector(new):
 
 
 #======================================================================================================
-
+def writef(arr,c1,r1):
+    c=0
+    i=0
+    while c<c1:
+        r=0
+        while r<r1:
+            savefile.write(str(arr[i])+"\t")
+            i=i+1
+            r=r+1
+        savefile.write("\n")    
+        c=c+1
 
 def arr_sum(arr):
     i=0
@@ -314,3 +368,4 @@ length_entry.focus()
 #root.bind('<Return>', calculate)
 
 root.mainloop()
+savefile.close()
