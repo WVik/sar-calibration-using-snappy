@@ -100,7 +100,7 @@ def findK(newframe):
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
         parameters = HashMap()
         parameters.put('copyMetadata', True)        
-        logFile.write('Coordinate'+str(i+1)' is'+" ("+str(coordinateArray[i][0]+","+str(coordinateArray[i][1])+")\n\n"))
+        logFile.write('Coordinate'+str(i+1)+' is'+" ("+str(coordinateArray[i][0]+","+str(coordinateArray[i][1])+")\n\n"))
         #creating subset
         a=int(coordinateArray[i][0])-63
         b=int(coordinateArray[i][1])-63
@@ -124,7 +124,7 @@ def findK(newframe):
         h = Inty_VH.getRasterHeight()
         Inty_VH_data = np.zeros(w * h, np.float32)
         a20=Inty_VH.readPixels(0, 0, w, h, Inty_VH_data)
-        logFilewrite('20x20 subset around coordinate'+str(i+1)+" without background intensity correction\n")
+        logFile.write('20x20 subset around coordinate'+str(i+1)+" without background intensity correction\n")
         logFile.write('[\n')
         arr20=arr12(a20,20,20)
         logFile.writelines(["%s\n" % item  for item in arr20])
@@ -143,7 +143,7 @@ def findK(newframe):
         #logFile.write('First 10x10 subset of background\n')
         #writef(a1,10,10)
         #logFile.write('sum_b1= '+str(sum_b1)+'\n')
-        logFilewrite('\n')
+        logFile.write('\n')
         
         parameters.put('region', "10,100,10,10")
         subset2 = GPF.createProduct('Subset', parameters, subset)
@@ -214,7 +214,7 @@ def findK(newframe):
         logFile.write('20x20 subset around coordinate'+str(i+1)+" with background intensity correction\n")
         logFile.write('[\n')
         logFile.writelines(["%s\n" % item  for item in arr40])
-        logFilewrite(']\n\n')
+        logFile.write(']\n\n')
         Ip=arr_sum(inter_a201d)
         alph=float(alpha.get())
         Pag=float(Pagr.get())
@@ -224,9 +224,9 @@ def findK(newframe):
     i=0
     k=0
     while i<len(k_VH):
-        k=k+k_VH[i]
+        k=k+k_VH[i] 
+        logFile.write("K value for reflector "+str(i+1)+" is: "+str(k_VH[i])+"\n")
         i=i+1
-        logFile.write("K value for reflector "+str(i+1)+" is: "+k_VH[i]+"\n")
     print('K_VH= '+str(k/len(k_VH)))
     logFile.write("\nAverage K value obtained = "+ str(k/len(k_VH)))
     logFile.write("===================================================================================")
@@ -409,3 +409,4 @@ length_entry.focus()
 
 root.mainloop()
 logFile.close()
+
